@@ -1,37 +1,30 @@
 import pandas as pd
-import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, accuracy_score
 
-# Load the Iris dataset
 iris_df = pd.read_csv('Iris.csv')
 
-# Display the first few rows of the dataset
+
 print("First few rows of the Iris dataset:")
 print(iris_df.head())
 
-# Selecting features and target variable
-X = iris_df[['SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']]  # Features
-y = iris_df['SepalLengthCm']  # Target variable
 
-# Add a column of ones to the features for the intercept term
-X['intercept'] = 1
+X = iris_df[['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']] 
+y = iris_df['Species']  
 
-# Convert features and target variable to NumPy arrays
-X = X.values
-y = y.values.reshape(-1, 1)  # Reshape y to ensure it's a 2D array
 
-# Calculate the coefficients using the normal equation: theta = (X^T * X)^-1 * X^T * y
-theta = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Make predictions
-y_pred = X.dot(theta)
 
-# Calculate mean squared error
-mse = np.mean((y - y_pred)**2)
+model = LogisticRegression(max_iter=1000)  
+model.fit(X_train, y_train)
 
-# Calculate R-squared score
-ssr = np.sum((y_pred - np.mean(y))**2)
-sst = np.sum((y - np.mean(y))**2)
-r_squared = ssr / sst
 
-print("\nMean Squared Error:", mse)
-print("R-squared Score:", r_squared)
+y_pred = model.predict(X_test)
+
+
+accuracy = accuracy_score(y_test, y_pred)
+print("\nAccuracy:", accuracy)
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
